@@ -1,0 +1,68 @@
+# Use multi-arch base image
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/vscode/devcontainers/python:dev-3.11-bookworm AS builder
+
+WORKDIR /opt
+ENV RYE_HOME="/opt/rye"
+ENV PATH="$RYE_HOME/shims:$PATH"
+
+# Install dependencies
+# hadolint ignore=DL3008
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    unzip \
+    build-essential \
+    cmake \
+    git \
+    python3-pip \
+    python3-dev \
+    python3-numpy \
+    python3-setuptools \
+    libopencv-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Rye with caching
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+RUN --mount=type=cache,target=/opt/rye/cache \
+    curl -sSf https://rye.astral.sh/get | RYE_INSTALL_OPTION="--yes" bash && \
+    rye config --set-bool behavior.global-python=true && \
+    rye config --set-bool behavior.use-uv=true
+
+# Copy project files and sync dependencies
+COPY ./.python-version ./pyproject.toml ./requirements* ./
+RUN rye pin "$(cat .python-version)" && rye sync
+
+#---------------------------------------------------------------- 2nd STAGE ----------------------------------------------------------------
+# Use multi-arch base image for the final stage
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/vscode/devcontainers/python:dev-3.11-bookworm
+
+# Copy Rye from the builder stage
+COPY --from=builder /opt/rye /opt/rye
+ENV RYE_HOME="/opt/rye"
+ENV PATH="$RYE_HOME/shims:$PATH"
+
+# Install Quarto for the correct architecture
+ARG TARGETARCH
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+      QUARTO_URL=https://quarto.org/download/latest/quarto-linux-arm64.deb; \
+    else \
+      QUARTO_URL=https://quarto.org/download/latest/quarto-linux-amd64.deb; \
+    fi && \
+    curl -LO $QUARTO_URL && \
+    dpkg -i quarto-linux-*.deb && \
+    rm quarto-linux-*.deb
+
+# Set Python to run in unbuffered mode
+ENV PYTHONUNBUFFERED True
+
+# Configure Rye
+RUN rye config --set-bool behavior.global-python=true && \
+    rye config --set-bool behavior.use-uv=true
+
+# Set correct permissions for the Rye home directory
+RUN chown -R vscode $RYE_HOME
+
+# You can add more instructions here if needed, such as:
+# - Installing additional tools
+# - Setting up environment variables
+# - Configuring the container further
