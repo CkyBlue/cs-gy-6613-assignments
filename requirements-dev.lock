@@ -212,7 +212,6 @@ filelock==3.15.4
     # via iterative-telemetry
     # via ray
     # via torch
-    # via triton
     # via virtualenv
 flatten-dict==0.4.2
     # via dvc
@@ -503,34 +502,6 @@ numpy==2.0.2
     # via torchvision
     # via uhi
     # via umap-learn
-nvidia-cublas-cu12==12.1.3.1
-    # via nvidia-cudnn-cu12
-    # via nvidia-cusolver-cu12
-    # via torch
-nvidia-cuda-cupti-cu12==12.1.105
-    # via torch
-nvidia-cuda-nvrtc-cu12==12.1.105
-    # via torch
-nvidia-cuda-runtime-cu12==12.1.105
-    # via torch
-nvidia-cudnn-cu12==9.1.0.70
-    # via torch
-nvidia-cufft-cu12==11.0.2.54
-    # via torch
-nvidia-curand-cu12==10.3.2.106
-    # via torch
-nvidia-cusolver-cu12==11.4.5.107
-    # via torch
-nvidia-cusparse-cu12==12.1.0.106
-    # via nvidia-cusolver-cu12
-    # via torch
-nvidia-nccl-cu12==2.20.5
-    # via torch
-nvidia-nvjitlink-cu12==12.6.68
-    # via nvidia-cusolver-cu12
-    # via nvidia-cusparse-cu12
-nvidia-nvtx-cu12==12.1.105
-    # via torch
 omegaconf==2.3.0
     # via dvc
     # via hydra-core
@@ -900,8 +871,6 @@ traitlets==5.14.3
     # via nbclient
     # via nbconvert
     # via nbformat
-triton==3.0.0
-    # via torch
 typer==0.12.5
     # via gto
 types-python-dateutil==2.9.0.20240821
