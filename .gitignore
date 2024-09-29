@@ -175,3 +175,5 @@ runs/
 
 *.pth
 .ipynb_checkpoints
+
+assignments/assignment-1/avazu-ctr-prediction/
